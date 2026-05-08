@@ -10,10 +10,8 @@ author: Meng Sun (Lead TA), Caleb Eastlund, Ducheng Lu
 - Set up MESA to use GYRE
 - Calculate period spacing using MESA and GYRE
 
-> Acknowledgement
-This tutorial is inspired by [similar labs for the 2025 MESA Summer School](https://mesa-leuven.4d-star.org/tutorials/friday/).
-
----
+Acknowledgement:
+This tutorial is largely inspired by [similar labs for the 2025 MESA Summer School](https://mesa-leuven.4d-star.org/tutorials/friday/) and the [GYRE documentation](https://gyre.readthedocs.io/en/stable/index.html).
 
 ## Building GYRE
 
@@ -24,18 +22,18 @@ This tutorial is inspired by [similar labs for the 2025 MESA Summer School](http
 - [`GYRE`](https://gyre.readthedocs.io/en/stable/), by R. H. D. Townsend, and
 - [`ADIPLS`](https://ui.adsabs.harvard.edu/abs/2008Ap%26SS.316..113C/abstract), by J. Christensen-Dalsgaard.
 
-The calculations performed by the two are essentially equivalent, with the main tradeoff being between performance and ease of use. In this tutorial, we will focus on `GYRE`, which is much easier to get started with.
+The two codes perform broadly similar calculations, with the main tradeoff being performance versus ease of use. In this tutorial, we will focus on `GYRE`, which is much easier to get started with.
 
 > [!Tip]
 > We will use the version of `GYRE` shipped with MESA for this tutorial (v8.1). However, you may wish to explore the latest release (v9.0) later, which includes significant performance improvements. See the release notes [here](https://github.com/rhdtownsend/gyre/releases/tag/v9.0).
 
 <!-- ### Download GYRE -->
-### Almost free lunch: download GYRE
-When you download MESA, `GYRE` is automcatically included as one of the folder. For MESA version r26.4.1, the shipped GYRE version is 8.1. To be sure that you are viewing the docs for the correct version number of the GYRE version that you are using. You can check the version number that you have by:
+### Getting started: download GYRE
+When you download MESA, `GYRE` is automatically included as one of the folder. For MESA version r26.4.1, the shipped GYRE version is 8.1. Make sure you are viewing the documentation corresponding to the version of GYRE you are using. You can check the version number that you have by:
 
-`
+```shell
 ls $MESA_DIR/gyre/*.tar.gz
-`
+```
 
 You will see something like
 `
@@ -46,7 +44,7 @@ path_to_mesa/gyre/gyre-8.1.tar.gz
 On the website, you can change the version by clicking the small box on the right bottom corner.
 ![Screenshot of GYRE website](img/GYRE_site.png)
 
-Optionally, if you would like to download the latest version of `GYRE`, you can download the source code from the corresponding website, put it to a directory to your taste, and do 
+Optionally, if you would like to use the latest version of GYRE, download the source archive from the official website, place it wherever you like, and extract it with:
 ```shell
 tar xf gyre-9.0.tar.gz
 ```
@@ -71,56 +69,93 @@ Remember that this is best placed inside your shell's RC file in your home direc
 ### Now we cook: compile
 Now, we can follow the GYRE installation guide from this point. Go ahead and compile:
 
-```make -j -C $GYRE_DIR install```
+```shell
+make -j -C $GYRE_DIR install
+```
 
 <!-- ### Test -->
-### The moment of truth: test
-Once that's complete, it's good practice to run the test suite to ensure nothing has gone wrong during the installation process:
+### The moment of truth: test the installation
+Once compilation is complete, run the test to verify that the installation succeeded:
 
-```make -C $GYRE_DIR test```
+```shell
+make -C $GYRE_DIR test
+```
 
 > [!NOTE]
-> If all the tests read "...succeeded" then you are good to move on to the next step. If that's not the case, ask your TA or a developer for help. 
+> If all the tests read "...succeeded" then you are good to move on to the next step. If that's not the case, ask a TA or developer for help. 
 
 ## Use GYRE with MESA model
 
-### A small kick: get the MESA model
-In this tutorial, we will focus on the usage of GYRE, so we have prepared a simple standard 5 solar mass model to get you started. 
+We will now connect GYRE to a real stellar structure model produced by MESA and compute oscillation modes.
 
-{{% callout type="error" %}}
-TODO: include the download links
-{{% /callout %}}
+### Loaded it up: get the MESA model
+In this tutorial, we will focus on the usage of GYRE, so we have prepared a simple 5-solar-mass stellar model to get you started. You will learn about the setup in MESA in the next tutorial.
 
-### Know your GYRgon: GYRE namelist
+#### Task: get the working directory
 
-Similar to MESA, GYRE takes an input file in the format of `namelist`.
+Download the working directory from the link below, unzip it, and move into the folder.
+{{< cards >}}
+  {{< card link="/downloads/day2_lab1.zip" title="Download working directory" icon="download" >}}
+{{< /cards >}}
 
+
+{{< details title="💡 HINT: unzip the file" closed="true" >}}
+
+```shell
+unzip day2_lab1.zip
+cd day2_lab1
+```
+{{< /details>}}
+
+<!-- You should see something like this in the folder:
+```
+>> tree .
+.
+├── ck
+├── clean
+├── history_columns.list
+├── inlist
+├── inlist_1M_star
+├── inlist_pgstar
+├── make
+│   └── makefile
+├── mk
+├── profile_columns.list
+├── re
+├── rn
+├── src
+│   ├── run_star_extras.f90
+│   └── run.f90
+└── tams.mod
+
+3 directories, 14 files 
+```-->
+
+### Know your GYRgons: GYRE namelist
+
+Similar to MESA, GYRE takes an input file in the format of `namelist`. Create a file called `gyre.in` in your favorite text editor, and paste the following lines into this file. 
 ```fortran
+&constants
+/
+
+&grid
+/
 
 &model
 /
  
-&constants
-/
- 
 &mode
+/
+
+&num
 /
  
 &osc
 /
  
-&num
-/
- 
 &scan
 /
- 
-&grid
-/
- 
-&rot
-/
- 
+
 &ad_output
 /
  
@@ -128,14 +163,46 @@ Similar to MESA, GYRE takes an input file in the format of `namelist`.
 /
 
 ```
->[!Note]
+>[!IMPORTANT]
 > Don't forget to add an empty line at the end of the file!
 
-The namelist is separated into different groups, a full explanation of the different groups and their members can be found [here](https://gyre.readthedocs.io/en/stable/ref-guide/input-files.html). In the following we will discuss the sections that we will use for our use.
+The namelist is separated into different groups, a full explanation of the different groups and their members can be found in the [documentation](https://gyre.readthedocs.io/en/stable/ref-guide/input-files.html). In the following, we will only cover the most essential sections needed to get started.
 
-### Model
 
-Here's where we tell GYRE what type of model to read in and calculate frequencies for. [The docs](https://gyre.readthedocs.io/en/stable/ref-guide/input-files/model-group.html) have a full explanation of all the options.
+#### Grid Parameters
+
+This group controls the spatial resolution of the grid used by GYRE to compute oscillation modes. The grid resolution determines the spacing between adjacent points in the stellar model.
+
+A finer grid generally improves:
+- the accuracy of the computed eigenmodes,
+- and the number of modes that GYRE can successfully detect.
+
+However, increasing the number of grid points also increases the computational cost.
+
+To accurately resolve oscillation modes, the grid spacing should be smaller than the scale of the smallest significant variation in the eigenfunctions. The grid can be refined using weighting parameters such as `w_osc`, `w_exp` and `w_ctr`. By default, these parameters are set to 0, but higher values are often needed for realistic calculations.
+
+You can read more about how these parameters affect the grid in the GYRE spatial grids documentation [here](https://gyre.readthedocs.io/en/stable/user-guide/understanding-grids/spatial-grids.html#spatial-grids) you can see how the following weighting parameters are used to define and refine the grid.
+
+
+##### Task: Set the grid refinement parameters
+Search in the Gyre documentation for appropriate values for `w_osc`, `w_exp` and `w_ctr` and set them in the corresponding namelist group.
+
+{{< details title="ℹ️ Solution" closed="true" >}}
+
+You can find them for example at the bottom of [this page](https://gyre.readthedocs.io/en/stable/user-guide/understanding-grids/spatial-grids.html#recommended-values).
+
+```fortran
+&grid
+    w_osc = 10 ! Oscillatory region weight parameter
+    w_exp = 2  ! Exponential region weight parameter
+    w_ctr = 10 ! Central region weight parameter
+/
+```
+{{< /details >}}
+
+#### Model
+
+Here we tell GYRE what stellar model to use for computing oscillation frequencies.
 
 We will add the following lines here:
 
@@ -146,16 +213,13 @@ We will add the following lines here:
     file_format = 'FGONG'
 /
 ```
-- `model_type` 
-As described by the docs, this will tell GYRE that we are using an external evolutionary model, and that file is called `profile##.data.GYRE` and it's using MESA's default GYRE file format. 
 
+`model_type` tells GYRE what kind of stellar model is being used. Here, 'EVOL' indicates that we are using an evolutionary model (from MESA in our case). `file` pinpoints the location of the model file, and `file_format` specifies the format of the input file. In this case, it is FGONG.
 
-### Mode
-This namegroup defines which modes you want to calculate. You can state the angular degree ($\ell$) and the azimuthal order ($m$). For each type of mode we will need one extra `&mode` namegroup. For now we will leave the azimuthal order at its default value ($m=0$); it will come up later when we include rotation. We will also assign the modes with a tag to differentiate between them in other namegroups. For this lab using `'radial'` for the  $\ell=0$ modes and `'non-radial'` for all others is enough. 
+#### Mode
+This namegroup defines which modes you want to calculate. You can state the angular degree ($\ell$) and the azimuthal order ($m$). For each type of mode we will need one extra `&mode` namegroup. 
 
-|📋 TASK |
-|:--|
-| Add the instructions to calculate the `l=0` oscillation modes into your `gyre.in` file and give them the corresponding tag.|
+Add the instructions to calculate the `l=0` oscillation modes into your `gyre.in` file and give them the corresponding tag.
 
 {{< details title="ℹ️ SOLUTION " closed="true" >}}
 
@@ -169,139 +233,87 @@ This namegroup defines which modes you want to calculate. You can state the angu
 ```
 {{< /details >}}
 
-{{% callout type="error" %}}
-TODO: explain `n_pg_min` and `n_pg_max` choices.
-{{% /callout %}}
 
+> [!CAUTION]
+> Add more explanation about things? tags? 
 
-{{% callout type="error" %}}
-TODO: check all the website links
-{{% /callout %}}
+#### Oscillation parameters
 
-{{% callout type="info" %}} Info box {{% /callout %}}
-{{% callout type="warning" %}} Warning box {{% /callout %}}
-{{% callout type="error" %}} Red box (error style) {{% /callout %}}
-{{% callout type="success" %}} Success box {{% /callout %}}
+In this namelist group, we can configure the treatment of the stellar oscillation equations. This includes options such as the boundary conditions and the scaling factors of different physical terms in the equations.
 
-### Oscillation parameters
+GYRE provides many options for controlling the underlying physics of the oscillation calculations. A full list of available parameters and their default values can be found in the GYRE oscillation group documentation [here](https://gyre.readthedocs.io/en/stable/ref-guide/input-files/osc-group.html).
 
-In this namegroup we can set various options on how to calculate the oscillations themselves. Which physics and assumptions to use, different boundary conditions, how to scale various parameters and so on. All of the options and their default values can be found [here](https://gyre.readthedocs.io/en/stable/ref-guide/input-files/osc-params.html).
-
-|📋 TASK |
-|:--|
-| As per default, GYRE assumes that at the outer boundary of the model, the stellar surface, the density vanishes. Instead we want to follow a more accurate description from Christensen-Dalsgaard (2008). Find and set the corresponding variable. To be consistent, you should also adjust `variables_set`.  |
-
-{{< details title="ℹ️ HINT " closed="true" >}}
-
-Search for the `outer_bound` variable.
-
-{{< /details >}}
-
-{{< details title="ℹ️ SOLUTION " closed="true" >}}
+To keep things simple, we will use the default outer boundary condition, which assumes that the density vanishes at the stellar surface:
 
 ```fortran
 &osc
     outer_bound = 'VACUUM'
 /
 ```
-{{< /details >}}
-
-#### Numerical Parameters
-Here goes everything to do with numerical parameters. Again, we leave nearly everything at default (see [here](https://gyre.readthedocs.io/en/stable/ref-guide/input-files/num-params.html)) and only increase the difference scheme from a second-order to a fourth-order Gauss-Legendre collocation.
-
-```fortran
-&num
-    diff_scheme = 'COLLOC_GL4'
-/
-```
 
 #### Frequency Scan Parameters
 
-This section tells GYRE in which frequency range it will scan for the oscillation eigenfunctions. The modes that are of interest to us are those closest to $\nu_{\rm max}$. We suggest to set `freq_min` and `freq_max` to $\nu_{\rm max} \pm 3 \Delta\nu$. Look into your `history.data` file to find the values of $\nu_{\rm max}$ and $\Delta\nu$ for your model with the profile you choose in the "Model" section. (You wrote this down in [our google sheet](https://docs.google.com/spreadsheets/d/1pAcvlfqOga0JNZo3cjJeZaErVd4youLYHyAmAu3NmSE/edit?usp=sharing) from Lab1, if you need a refresher). We also set the units of our chosen range to μHz (`freq_units = 'UHZ'`) 
+This section defines the frequency grid used by GYRE to search for oscillation modes. 
 
-Next, we define the resolution, the number of points of our scan.  Generally, we need the grid spacing to be smaller than the eigenfrequency separation of adjacent modes, across the full range of the grid. There is no absolute rule as how to determine this value beforehand, but a too low value could miss some modes and a high value means a longer runtime. For our radial p-modes `n_freq = 200` is enough but because we calculate the oscillations also for red giants we do not only have p-modes but also mixed-modes (for the non-radial modes). These will need a higher value. To be more efficient we therefore define two different `&scan` namegroups. To define which modes correspond to which scan we set `tag_list = 'radial'` (the tag we defined in `&mode`):
+Unlike the spatial grid, which discretizes the oscillation equations inside the star, the frequency grid determines the range and resolution over which GYRE searches for eigenfrequencies.
 
-```fortran
-&scan
-  tag_list = 'radial'
-  grid_type = 'LINEAR'  ! Scan grid uniform in frequency
-  freq_min =  ###       ! Minimum frequency to scan from
-  freq_max =  ###       ! Maximum frequency to scan to  
-  n_freq = 200          ! Number of frequency points in scan
-  freq_units = 'UHZ'
-/
-```
+The choice of `grid_type` depends on the type of modes being studied:
+- For p-modes, which are approximately equally spaced in frequency in the asymptotic limit, a linear frequency grid is usually preferred, i.e., ` grid_type = 'LINEAR'`;
+- For g-modes, which are approximately equally spaced in period, an inverse-frequency grid is more appropriate, therefore, `grid_type = 'INVERSE'`.
 
-For the non-radial modes g-modes become relevant. These are not equally spaced in frequency like the p-modes but in period. The higher the star evolves up the RGB ($\nu_{\rm max}$ decreases) the more tightly spaced they get. Therefore it is recommended to scan the grid not uniform in frequency (`grid_type = 'LINEAR'`) but uniform in period (`grid_type = 'INVERSE'`).
+To reliably detect all modes, the scan grid spacing should generally be smaller than the separation between adjacent eigenfrequencies across the full scan range. If the grid is too coarse, some modes may be missed; if it is too fine, the runtime increases significantly. There is no universal choice for the scan parameters, and they often need to be adjusted depending on the type of modes and frequency range of interest.
+
+Here we are interested in g-modes, so we choose grid_type = 'INVERSE',
 
 ```fortran
 &scan
-  tag_list = 'non-radial'
-  grid_type = 'INVERSE' ! Scan grid uniform in inverse frequency
-  freq_min = ###        ! Minimum frequency to scan from
-  freq_max = ###        ! Maximum frequency to scan to
-  n_freq = 3000         ! Number of frequency points in scan
-  freq_units = 'UHZ'
+    grid_type = 'INVERSE'   ! Scan grid uniform in inverse frequency
+    freq_min = 0.2          ! Minimum frequency to scan from
+    freq_max = 2.5          ! Maximum frequency to scan to
+    n_freq = 5000           ! Number of frequency points in scan
+    freq_units = 'CYC_PER_DAY'
 /
 ```
 
-|📋 TASK |
-|:--|
-| Copy- Paste the two `&scan` namelist groups and set `freq_min` and `freq_max` to $\nu_{\rm max} \pm 3*\Delta\nu$. You can find the values for $\nu_{\rm max}$ and $\Delta\nu$ in your `history.data` file. Choose the values with the same `model_number` as your profile selected in the "Model" section|
- 
-#### Grid Parameters
-In this group you can modify the spatial resolution of the grid generated by Gyre to calculate the eigenmodes. If it is too low the eigenmodes are not resolved and the accuracy of the results suffers. The grid spacing should be smaller than the scale of the smallest significant variation of the eigenfunction. [Here](https://gyre.readthedocs.io/en/stable/user-guide/understanding-grids/spatial-grids.html#spatial-grids) you can see how the following weighting parameters are used to define and refine the grid. The defaults are set to 0 but for a appropriate resolution you should choose higher values.
+##### Task: Set frequency grid
+Add the lines above in the section `&scan` of your `gyre.in`.
 
-|📋 TASK |
-|:--|
-| Search in the Gyre documentation for appropriate values for `w_osc`, `w_exp` and `w_ctr` and set them in the corresponding namelist group |
-
-{{< details title="ℹ️ SOLUTION" closed="true" >}}
-
-You can find them for example at the bottom of [this page](https://gyre.readthedocs.io/en/stable/user-guide/understanding-grids/spatial-grids.html#recommended-values).
-
-```fortran
-&grid
-  w_osc = 10 ! Oscillatory region weight parameter
-  w_exp = 2  ! Exponential region weight parameter
-  w_ctr = 10 ! Central region weight parameter
-/
-```
-{{< /details >}}
+> [!Caution]
+> add a task to let them choose the range based on the mode? Need to add some extra columns in the history columns maybe.
 
 #### Output
 
-Now it's time to tell gyre what parameters it should save. Similar to profiles and history files we also have two different output types in GYRE. The summary file is as the name implies a summary of all oscillation modes GYRE found. You can include all parameters that describe the mode with a single value e.g. $l$, $m$, $n$, frequency, inertia, ... . The name of the file is given by the `summary_file` and the parameters it should include are given with `summary_item_list`. You can rename this if you want to run more than one model (e.g. `summary_numax500.txt`)(Or put it in the same folder as the details as described in the next paragraph). All the options can be found [here](https://gyre.readthedocs.io/en/stable/ref-guide/output-files.html). For this lab we will also change the file format to a textfile so it becomes human readable instead of the default HDF5 file.
+Finally, we need to tell GYRE what information it should save from the oscillation calculations.
+
+GYRE provides two main types of output files:
+- summary files, which contain one-line summaries of all computed modes,
+- detail files, which store the full eigenfunctions and structural information for individual modes.
+
+For now, we will focus only on the summary output. Here you can include all quantities that describe the mode with a single value e.g. $l$, $m$, $n$, frequency, inertia, and more .  A full list of available output quantities can be found in the [summary files documentation](https://gyre.readthedocs.io/en/stable/ref-guide/output-files/summary-files.html). The name of the file is given by the `summary_file` and the quantities it should include are given with `summary_item_list`.
+
+To remain consistent with our frequency scan, do not forget to set: `freq_units = 'CYC_PER_DAY'`.
+
+##### Task: Settings for output files
+Put the following lines to define your output into the `&ad_output` of your `gyre.in` file. Adjust the location of your output file as you see fit.
 
 ```fortran
 &ad_output
-  summary_file = 'summary.txt'                         
-  summary_item_list = 'l,m,n_pg,n_p,n_g,freq,E_norm,E_p,E_g'
-  summary_file_format = 'TXT'  
-...
+    summary_file = 'summary_zams.h5'
+    summary_item_list = 'l,n_pg,m,freq,period'
+    summary_file_format = 'HDF'
+    freq_units = 'CYC_PER_DAY'
 ```
 
-The detail file on the other hand gives you a detailed description of one mode. We have several files for one run and therefore we give a template of the name instead to avoid overwriting the file for each mode we calculate. E.g. `'%l'` will be replaced with the angular degree of the corresponding mode and `'%n'` with its radial order. All options can be found [here](https://gyre.readthedocs.io/en/stable/ref-guide/input-files/output-params.html). A good idea is to make a new folder for all your detail files if you want to run several models and provide the path to it (for example: `detail_template = 'details_numax500/detail.l%l.n%n.h5`). Be aware that GYRE does not generate any folders for you and you will get an error if it can't find the folder. Keep an eye out on your storage, one file may not be large but it sums up quite quickly when you have a lot of modes (That's why we will stick to the HDF5 format). Additionally we will define the frequency units again with `freq_units`.
+> [!Tip]
+> The output settings are placed inside the `&ad_output` namelist group, indicating that we are performing an adiabatic oscillation calculation. If we want to instead calculate it non-adiabatically we would put it in `&nad_output` instead. 
 
-```fortran
-...
-  detail_template = 'detail.l%l.n%n.h5'               
-  detail_item_list = 'l,n_pg,omega,x,xi_r,xi_h,c_1,As,
-                      V_2,Gamma_1,rho,P,R_star,M_star' 
-  !detail_file_format = 'TXT'  
+> [!Note]
+> Unlike 
 
-  freq_units = 'UHZ'                      
-/
+### Putting it all together
 
-&nad_output
-/
-```
-
-We put everything in the namegroup `&ad_output`. It tells gyre that we will assume adiabatic conditions. If we want to instead calculate it non-adiabatically we would put it in `&nad_output` instead. 
-
-|📋 TASK |
-|:--|
-| Put the above lines to define your output into the `&ad_output` of your `gyre.in` file. Adjust the location of your output file as you see fit. |
+#### One last check
+Before we procee to run GYRE, you might check that you have everything in place.
 
 {{<details title="The final look of our gyre.in" closed="true">}}
 
@@ -340,10 +352,12 @@ We put everything in the namegroup `&ad_output`. It tells gyre that we will assu
 /
 
 &grid
+    w_osc = 10 ! Oscillatory region weight parameter
+    w_exp = 2  ! Exponential region weight parameter
+    w_ctr = 10 ! Central region weight parameter
 /
 
 &num
-    diff_scheme = 'COLLOC_GL2'
 /
 
 &ad_output
@@ -352,14 +366,21 @@ We put everything in the namegroup `&ad_output`. It tells gyre that we will assu
     summary_file_format = 'HDF'
     freq_units = 'CYC_PER_DAY'
 
-    detail_template = 'detail_central_h1_zams/detail.l%l.n%n.h5'               
-    detail_item_list = 'l,n_pg,omega,x,xi_r,xi_h,c_1,As,V_2,Delta_g,Gamma_1'
-/
-
 &nad_output
 /
-```
-{{< /details>}}
 
->[!Tip]
-> Sometimes it can be useful to check out the [troubleshooting](https://gyre.readthedocs.io/en/stable/user-guide/troubleshooting.html) section of the website.
+```
+
+{{</details>}}
+
+<!-- >[!Tip]
+> Sometimes it can be useful to check out the [troubleshooting](https://gyre.readthedocs.io/en/stable/user-guide/troubleshooting.html) section of the website. -->
+
+#### GYRE it up
+Now you are all set! 
+
+```shell
+$GYRE_DIR/bin/gyre gyre.in
+```
+
+#### See how it looks like
