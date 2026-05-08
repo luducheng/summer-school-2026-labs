@@ -10,11 +10,14 @@ author: Meng Sun (Lead TA), Caleb Eastlund, Ducheng Lu
 - Set up MESA to use GYRE
 - Calculate period spacing using MESA and GYRE
 
-## Acknowledgement
-
+> Acknowledgement
 This tutorial is inspired by [similar labs for the 2025 MESA Summer School](https://mesa-leuven.4d-star.org/tutorials/friday/).
 
 ---
+
+## Building GYRE
+
+### Your star’s personal sound system
 
 `MESA` is distributed with two codes for stellar oscillations:
 
@@ -26,9 +29,8 @@ The calculations performed by the two are essentially equivalent, with the main 
 > [!Tip]
 > We will use the version of `GYRE` shipped with MESA for this tutorial (v8.1). However, you may wish to explore the latest release (v9.0) later, which includes significant performance improvements. See the release notes [here](https://github.com/rhdtownsend/gyre/releases/tag/v9.0).
 
-## Building GYRE
-
-### Download
+<!-- ### Download GYRE -->
+### Almost free lunch: download GYRE
 When you download MESA, `GYRE` is automcatically included as one of the folder. For MESA version r26.4.1, the shipped GYRE version is 8.1. To be sure that you are viewing the docs for the correct version number of the GYRE version that you are using. You can check the version number that you have by:
 
 `
@@ -49,8 +51,10 @@ Optionally, if you would like to download the latest version of `GYRE`, you can 
 tar xf gyre-9.0.tar.gz
 ```
 
-### Set Environment Variables
+<!-- ### Set Environment Variables -->
+### Bonding session: set environment variables
 Secondly, we will set the environment variable `$GYRE_DIR` to the path to source directory of gyre.
+
 ```shell
 export GYRE_DIR=path/to/gyre
 ```
@@ -63,12 +67,14 @@ export GYRE_DIR=path/to/gyre
 
 Remember that this is best placed inside your shell's RC file in your home directory (usually `.bashrc` or equivalent), similarly to when you first installed MESA. **Don't forget to `source` this file to apply the changes to your terminal window!**
 
-### Compile
+<!-- ### Compile -->
+### Now we cook: compile
 Now, we can follow the GYRE installation guide from this point. Go ahead and compile:
 
 ```make -j -C $GYRE_DIR install```
 
-### Test
+<!-- ### Test -->
+### The moment of truth: test
 Once that's complete, it's good practice to run the test suite to ensure nothing has gone wrong during the installation process:
 
 ```make -C $GYRE_DIR test```
@@ -76,11 +82,16 @@ Once that's complete, it's good practice to run the test suite to ensure nothing
 > [!NOTE]
 > If all the tests read "...succeeded" then you are good to move on to the next step. If that's not the case, ask your TA or a developer for help. 
 
----
-
 ## Use GYRE with MESA model
 
-### GYRE namelist
+### A small kick: get the MESA model
+In this tutorial, we will focus on the usage of GYRE, so we have prepared a simple standard 5 solar mass model to get you started. 
+
+{{% callout type="error" %}}
+TODO: include the download links
+{{% /callout %}}
+
+### Know your GYRgon: GYRE namelist
 
 Similar to MESA, GYRE takes an input file in the format of `namelist`.
 
@@ -158,6 +169,20 @@ This namegroup defines which modes you want to calculate. You can state the angu
 ```
 {{< /details >}}
 
+{{% callout type="error" %}}
+TODO: explain `n_pg_min` and `n_pg_max` choices.
+{{% /callout %}}
+
+
+{{% callout type="error" %}}
+TODO: check all the website links
+{{% /callout %}}
+
+{{% callout type="info" %}} Info box {{% /callout %}}
+{{% callout type="warning" %}} Warning box {{% /callout %}}
+{{% callout type="error" %}} Red box (error style) {{% /callout %}}
+{{% callout type="success" %}} Success box {{% /callout %}}
+
 ### Oscillation parameters
 
 In this namegroup we can set various options on how to calculate the oscillations themselves. Which physics and assumptions to use, different boundary conditions, how to scale various parameters and so on. All of the options and their default values can be found [here](https://gyre.readthedocs.io/en/stable/ref-guide/input-files/osc-params.html).
@@ -176,8 +201,7 @@ Search for the `outer_bound` variable.
 
 ```fortran
 &osc
-    outer_bound = 'JCD'
-    variables_set = 'JCD'
+    outer_bound = 'VACUUM'
 /
 ```
 {{< /details >}}
