@@ -153,6 +153,9 @@ Similar to MESA, GYRE takes an input file in the format of `namelist`. Create a 
 &osc
 /
  
+&rot
+/
+
 &scan
 /
 
@@ -225,7 +228,7 @@ Add the instructions to calculate the `l=0` oscillation modes into your `gyre.in
 
 ```fortran
 &mode
-    l = 0
+    l = 1
     m = 0
     n_pg_min = -150
     n_pg_max = -10
@@ -234,8 +237,8 @@ Add the instructions to calculate the `l=0` oscillation modes into your `gyre.in
 {{< /details >}}
 
 
-> [!CAUTION]
-> Add more explanation about things? tags? 
+<!-- > [!CAUTION]
+> Add more explanation about things? tags?  -->
 
 #### Oscillation parameters
 
@@ -278,16 +281,16 @@ Here we are interested in g-modes, so we choose grid_type = 'INVERSE',
 ##### Task: Set frequency grid
 Add the lines above in the section `&scan` of your `gyre.in`.
 
-> [!Caution]
-> add a task to let them choose the range based on the mode? Need to add some extra columns in the history columns maybe.
+<!-- > [!Caution]
+> add a task to let them choose the range based on the mode? Need to add some extra columns in the history columns maybe. -->
 
 #### Output
 
 Finally, we need to tell GYRE what information it should save from the oscillation calculations.
 
 GYRE provides two main types of output files:
-- summary files, which contain one-line summaries of all computed modes,
-- detail files, which store the full eigenfunctions and structural information for individual modes.
+- summary files, which contain global properties, such as eigenfunctions and radial orders, of all computed modes,
+- detail files, which store the eigenfunctions and structural information for individual modes.
 
 For now, we will focus only on the summary output. Here you can include all quantities that describe the mode with a single value e.g. $l$, $m$, $n$, frequency, inertia, and more .  A full list of available output quantities can be found in the [summary files documentation](https://gyre.readthedocs.io/en/stable/ref-guide/output-files/summary-files.html). The name of the file is given by the `summary_file` and the quantities it should include are given with `summary_item_list`.
 
@@ -305,10 +308,10 @@ Put the following lines to define your output into the `&ad_output` of your `gyr
 ```
 
 > [!Tip]
-> The output settings are placed inside the `&ad_output` namelist group, indicating that we are performing an adiabatic oscillation calculation. If we want to instead calculate it non-adiabatically we would put it in `&nad_output` instead. 
+> The output settings are placed inside the `&ad_output` namelist group, indicating that we are performing an adiabatic oscillation calculation. If we want to instead calculate it non-adiabatically we would need to put it in `&nad_output` instead. 
 
-> [!Note]
-> Unlike 
+<!-- > [!Note]
+> Unlike MESA, GYRE does not generate any folders for you. B and you will get an error if it can't find the folder. -->
 
 ### Putting it all together
 
@@ -377,10 +380,87 @@ Before we procee to run GYRE, you might check that you have everything in place.
 > Sometimes it can be useful to check out the [troubleshooting](https://gyre.readthedocs.io/en/stable/user-guide/troubleshooting.html) section of the website. -->
 
 #### GYRE it up
-Now you are all set! 
 
+Now you are all set! Go ahead and run GYRE:
 ```shell
 $GYRE_DIR/bin/gyre gyre.in
 ```
 
-#### See how it looks like
+#### See the beat
+
+The easiest way to visualize GYRE output is with the Python package `pygyre`, available on the Python Package Index ([PyPI](https://pypi.org/)).
+
+You can nstall it with:
+```shell
+pip install pygyre
+```
+
+We have prepared a [Google Colab](https://colab.research.google.com/drive/1i3vLNluWk44EUli_asEY4Pvnkbwme5kS?usp=sharing). Before editing the notebook, save a copy to your own Google Drive (`File → Save a copy in Drive`), otherwise your changes may not persist. If you have pygyre downloaded, you can download the notebook and work locally.
+
+{{< details title="You should have something like this" closed="true" >}}
+
+![image](img/period_spacing.png)
+
+{{< /details >}}
+
+##### Task: plot the period spacing
+Upload your summary file to the Google Colab, and plot the period spacing.
+
+#### Bonus: more diagnostic from the detail files
+> [!Note]
+> This is an optional section, make sure to finish the other sections before starting.
+
+As mentioned before, in addition to the summary files, GYRE can have another type of output files called detail files. The detail files provide additional information about individual modes, such as eigenfunctions and propagation properties.
+
+To tell GYRE to output the detail files, add the following lines in the `&ad_output` section:
+```fortran
+&ad_output
+    ....
+
+    detail_template = 'subfolder_name/detail.l%l.n%n.h5'               
+    detail_item_list = 'l,n_pg,omega,x,xi_r,xi_h,c_1,As,V_2,Delta_g,Gamma_1'
+/
+```
+> [!Important]
+> GYRE creates one detail file per mode, so the number of output files can grow quickly. To keep things organized, it is convenient to store them in a separate folder.
+> 
+> However, GYRE does not create directories automatically, so you must create the folder yourself before running GYRE. Name it, for example, `detail_zams`:
+> {{<details title="create a subfolder" closed="true">}}
+> ```shell
+> mkdir detail_zams 
+> ```
+> {{</details>}}
+> Replace the `subfolder_name` by the proper name of your folder. 
+> {{<details title="example configuration" closed="true">}}
+> ```fortran
+>     detail_template = 'detail_zams/detail.l%l.n%n.h5'               
+>     detail_item_list = 'l,n_pg,omega,x,xi_r,xi_h,c_1,As,V_2,Delta_g,Gamma_1'
+> ```
+> {{</details>}}
+
+The `%l` and `%n` will be replaced by the harmonic degree $\ell$ and the radial order $n_\mathrm{pg}$, respectively. For more options, check out the [doc](https://gyre.readthedocs.io/en/stable/ref-guide/input-files/output-groups.html). The `detail_item_list` specifies the quantities we are interested in.
+
+Again,
+```shell
+$GYRE_DIR/bin/gyre gyre.in
+```
+
+Now if you do:
+```shell
+ls -l detail_zams | wc -l
+```
+You will see the number of the modes found by GYRE.
+
+##### Bonus task: inspect the propagation diagram
+Go to the [Google Colab](https://colab.research.google.com/drive/1i3vLNluWk44EUli_asEY4Pvnkbwme5kS?usp=sharing), upload one of your detail files there, and use the provided plotting function `plot_propagation_diagram` to plot the propagation diagram.
+
+
+##### Bonus task: inspect the eigenfunctions
+One can inspect the eigenfunctions of each mode through the detail files. Upload a few detail files to the Google Colab notebook and use the provided plotting functions to inspect the radial (`xi_r`) and horizontal (`xi_h`) eigenfunctions of different modes.
+
+Compare how the eigenfunctions change with radial order.
+
+>[!Caution]
+> is this a good idea? 
+
+
