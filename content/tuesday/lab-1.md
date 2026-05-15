@@ -95,11 +95,11 @@ In this tutorial, we will focus on the usage of GYRE, so we have prepared a simp
 
 Download the working directory from the link below, unzip it, and move into the folder.
 {{< cards >}}
-  {{< card link="/downloads/day2_lab1.zip" title="Download working directory" icon="download" >}}
+  {{< card link="/tuesday/day2_lab1.zip" title="Download working directory" icon="download" >}}
 {{< /cards >}}
 
 
-{{< details title="💡 HINT: unzip the file" closed="true" >}}
+{{< details title="💡 HINT: Unzip the file and change into the directory" closed="true" >}}
 
 ```shell
 unzip day2_lab1.zip
@@ -182,13 +182,13 @@ A finer grid generally improves:
 
 However, increasing the number of grid points also increases the computational cost.
 
-To accurately resolve oscillation modes, the grid spacing should be smaller than the scale of the smallest significant variation in the eigenfunctions. The grid can be refined using weighting parameters such as `w_osc`, `w_exp` and `w_ctr`. By default, these parameters are set to 0, but higher values are often needed for realistic calculations.
+To accurately resolve oscillation modes, the grid spacing should be smaller than the scale of the smallest significant variation in the eigenfunctions. The grid can be refined using weighting parameters such as `w_osc`, `w_exp` and `w_ctr`. These parameters are set to zero by default, in which case the spatial grid from the stellar model is used directly for the oscillation calculation. For our models, this default configuration is sufficient. However, higher values may be required for more realistic stellar applications.
 
-You can read more about how these parameters affect the grid in the GYRE spatial grids documentation [here](https://gyre.readthedocs.io/en/stable/user-guide/understanding-grids/spatial-grids.html#spatial-grids) you can see how the following weighting parameters are used to define and refine the grid.
+Further details on how these parameters affect the grid can be found in the GYRE documentation on spatial grids [here](https://gyre.readthedocs.io/en/stable/user-guide/understanding-grids/spatial-grids.html#spatial-grids). 
 
 
-##### Task: Set the grid refinement parameters
-Search in the Gyre documentation for appropriate values for `w_osc`, `w_exp` and `w_ctr` and set them in the corresponding namelist group.
+<!-- ##### Task: Set the grid refinement parameters
+Search in the GYRE documentation for appropriate values for `w_osc`, `w_exp` and `w_ctr` and set them in the corresponding namelist group.
 
 {{< details title="ℹ️ Solution" closed="true" >}}
 
@@ -201,7 +201,7 @@ You can find them for example at the bottom of [this page](https://gyre.readthed
     w_ctr = 10 ! Central region weight parameter
 /
 ```
-{{< /details >}}
+{{< /details >}} -->
 
 #### Model
 
@@ -224,7 +224,7 @@ This namegroup defines which modes you want to calculate. You can state the angu
 
 Add the instructions to calculate the `l=0` oscillation modes into your `gyre.in` file and give them the corresponding tag.
 
-{{< details title="ℹ️ SOLUTION " closed="true" >}}
+{{< details title="ℹ️ Solution " closed="true" >}}
 
 ```fortran
 &mode
@@ -397,11 +397,7 @@ pip install pygyre
 
 We have prepared a [Google Colab](https://colab.research.google.com/drive/1i3vLNluWk44EUli_asEY4Pvnkbwme5kS?usp=sharing). Before editing the notebook, save a copy to your own Google Drive (`File → Save a copy in Drive`), otherwise your changes may not persist. If you have pygyre downloaded, you can download the notebook and work locally.
 
-{{< details title="You should have something like this" closed="true" >}}
-
-![image](img/period_spacing.png)
-
-{{< /details >}}
+![period spacing](tuesday/img/period_spacing.png)
 
 ##### Task: plot the period spacing
 Upload your summary file to the Google Colab, and plot the period spacing.
@@ -454,13 +450,15 @@ You will see the number of the modes found by GYRE.
 ##### Bonus task: inspect the propagation diagram
 Go to the [Google Colab](https://colab.research.google.com/drive/1i3vLNluWk44EUli_asEY4Pvnkbwme5kS?usp=sharing), upload one of your detail files there, and use the provided plotting function `plot_propagation_diagram` to plot the propagation diagram.
 
+![propagation diagram](img/propagation_diagram_zams.png)
+
 
 ##### Bonus task: inspect the eigenfunctions
 One can inspect the eigenfunctions of each mode through the detail files. Upload a few detail files to the Google Colab notebook and use the provided plotting functions to inspect the radial (`xi_r`) and horizontal (`xi_h`) eigenfunctions of different modes.
 
 Compare how the eigenfunctions change with radial order.
 
->[!Caution]
-> is this a good idea? 
+<!-- >[!Caution]
+> is this a good idea?  -->
 
 
