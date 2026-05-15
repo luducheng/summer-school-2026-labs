@@ -95,9 +95,8 @@ In this tutorial, we will focus on the usage of GYRE, so we have prepared a simp
 
 Download the working directory from the link below, unzip it, and move into the folder.
 {{< cards >}}
-  {{< card link="/tuesday/day2_lab1.zip" title="Download working directory" icon="download" >}}
+  {{< card link="tuesday/day2_lab1.zip" title="Download working directory" icon="download" >}}
 {{< /cards >}}
-
 
 {{< details title="💡 HINT: Unzip the file and change into the directory" closed="true" >}}
 
@@ -397,10 +396,10 @@ pip install pygyre
 
 We have prepared a [Google Colab](https://colab.research.google.com/drive/1i3vLNluWk44EUli_asEY4Pvnkbwme5kS?usp=sharing). Before editing the notebook, save a copy to your own Google Drive (`File → Save a copy in Drive`), otherwise your changes may not persist. If you have pygyre downloaded, you can download the notebook and work locally.
 
-![period spacing](tuesday/img/period_spacing.png)
-
 ##### Task: plot the period spacing
 Upload your summary file to the Google Colab, and plot the period spacing.
+
+![period spacing](img/period_spacing.png)
 
 #### Bonus: more diagnostic from the detail files
 > [!Note]
