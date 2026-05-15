@@ -95,7 +95,7 @@ In this tutorial, we will focus on the usage of GYRE, so we have prepared a simp
 
 Download the working directory from the link below, unzip it, and move into the folder.
 {{< cards >}}
-  {{< card link="tuesday/day2_lab1.zip" title="Download working directory" icon="download" >}}
+  {{< card link="/tuesday/day2_lab1.zip" title="Download working directory" icon="download" >}}
 {{< /cards >}}
 
 {{< details title="💡 HINT: Unzip the file and change into the directory" closed="true" >}}
