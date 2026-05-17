@@ -1,8 +1,9 @@
 ---
 author: Meng Sun (Lead TA), Caleb Eastlund, Ducheng Lu
+math: true
 ---
 
-# Lab 1 
+# Lab 1: Finding the Beat
 
 ## Learning Goals
 
@@ -24,9 +25,6 @@ This tutorial is largely inspired by [similar labs for the 2025 MESA Summer Scho
 
 The two codes perform broadly similar calculations, with the main tradeoff being performance versus ease of use. In this tutorial, we will focus on `GYRE`, which is much easier to get started with.
 
-> [!Tip]
-> We will use the version of `GYRE` shipped with MESA for this tutorial (v8.1). However, you may wish to explore the latest release (v9.0) later, which includes significant performance improvements. See the release notes [here](https://github.com/rhdtownsend/gyre/releases/tag/v9.0).
-
 <!-- ### Download GYRE -->
 ### Getting started: download GYRE
 When you download MESA, `GYRE` is automatically included as one of the folder. For MESA version r26.4.1, the shipped GYRE version is 8.1. Make sure you are viewing the documentation corresponding to the version of GYRE you are using. You can check the version number that you have by:
@@ -39,10 +37,13 @@ You will see something like
 `
 path_to_mesa/gyre/gyre-8.1.tar.gz
 `
-,where 8.1 tells you the version nubmer. 
+, where 8.1 tells you the version nubmer. 
 
 On the website, you can change the version by clicking the small box on the right bottom corner.
 ![Screenshot of GYRE website](img/GYRE_site.png)
+
+> [!Tip]
+> We will use the version of `GYRE` shipped with MESA for this tutorial (v8.1). However, you may wish to explore the latest release (v9.0) later, which will produce the same results but much faster. See the release notes [here](https://github.com/rhdtownsend/gyre/releases/tag/v9.0).
 
 Optionally, if you would like to use the latest version of GYRE, download the source archive from the official website, place it wherever you like, and extract it with:
 ```shell
@@ -58,7 +59,7 @@ export GYRE_DIR=path/to/gyre
 ```
 
 >[!Tip]
-> If you are using the `GYRE` shipped with MESA, the path should be 
+> If you are using the `GYRE` shipped with MESA, the path should be: 
 > ```shell
 > export GYRE_DIR=$MESA_DIR/gyre/gyre
 > ```
@@ -399,7 +400,17 @@ We have prepared a [Google Colab](https://colab.research.google.com/drive/1i3vLN
 ##### Task: plot the period spacing
 Upload your summary file to the Google Colab, and plot the period spacing.
 
+You will have a plot like this:
 ![period spacing](img/period_spacing.png)
+
+<!-- {{<details title="Why the period spacing is almost constant?" closed="true">}}
+$$
+\begin{align}
+
+\end{align}
+$$
+
+{{</details>}} -->
 
 #### Bonus: more diagnostic from the detail files
 > [!Note]
@@ -449,8 +460,8 @@ You will see the number of the modes found by GYRE.
 ##### Bonus task: inspect the propagation diagram
 Go to the [Google Colab](https://colab.research.google.com/drive/1i3vLNluWk44EUli_asEY4Pvnkbwme5kS?usp=sharing), upload one of your detail files there, and use the provided plotting function `plot_propagation_diagram` to plot the propagation diagram.
 
+Check if you have something like this:
 ![propagation diagram](img/propagation_diagram_zams.png)
-
 
 ##### Bonus task: inspect the eigenfunctions
 One can inspect the eigenfunctions of each mode through the detail files. Upload a few detail files to the Google Colab notebook and use the provided plotting functions to inspect the radial (`xi_r`) and horizontal (`xi_h`) eigenfunctions of different modes.
@@ -460,4 +471,25 @@ Compare how the eigenfunctions change with radial order.
 <!-- >[!Caution]
 > is this a good idea?  -->
 
+#### Bonus: A short introduction to how GYRE finds oscillation modes
 
+GYRE solves the stellar oscillation equations, a set of differential equations and boundary conditions that describe small, periodic perturbations about a star's equilibrium state. Consistent solutions to these equations (known as "modes") can be found only for certain specific choices of the perturbation frequency, and so the frequency takes on the mathematical role of an eigenvalue.
+
+To calculate the frequency eigenvalues (or "eigenfrequencies") of a stellar model (obtained, for instance, from MESA), GYRE sets up a large system of algebraic equations. These equations are derived from finite-difference approximations to the oscillation differential equations, taken between pairs of adjacent spatial grid points. In symbolic form, the algebraic equations can be written as
+
+$$
+   S u = 0, 
+$$
+
+where $S$ is a matrix of coefficients and $u$ is a vector of unknowns representing the perturbations at each grid point. Solutions to this equation only exist when
+
+$$
+    \det(S) = 0.
+$$
+
+and so GYRE's task is to search for the frequencies at which the determinant of $S$ vanishes. Once these eigenfrequencies are found, GYRE reconstructs the associated eigenfunctions (describing the spatial dependence of perturbations) from the vector $u$.
+
+The eigenfrequencies of a star depend on the detailed internal structure of the star. Therefore, by comparing a set of eigenfrequencies for a given stellar model against those observed in a real star, we can test how well the model represents the real star --- a technique known as asteroseismology.
+
+Reference
+- [Townsend, R. H. D., & Teitler, S. A. 2013, *MNRAS*, 435, 3406](https://ui.adsabs.harvard.edu/abs/2013MNRAS.435.3406T/abstract)
