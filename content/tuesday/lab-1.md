@@ -1,8 +1,3 @@
----
-author: Meng Sun (Lead TA), Caleb Eastlund, Ducheng Lu
-math: true
----
-
 # Lab 1: Finding the Beat
 
 ## Learning Goals
@@ -94,10 +89,7 @@ In this tutorial, we will focus on the usage of GYRE, so we have prepared a simp
 
 #### Task: get the working directory
 
-Download the working directory from the link below, unzip it, and move into the folder.
-{{< cards >}}
-    {{< card link="downloads/day2_lab1.zip" title="Download working directory" icon="download" >}}
-{{< /cards >}}
+Download the working directory [here](downloads/day2_lab1.zip), unzip it, and move into the folder.
 
 {{< details title="💡 HINT: Unzip the file and change into the directory" closed="true" >}}
 
@@ -106,8 +98,8 @@ unzip day2_lab1.zip
 cd day2_lab1
 ```
 {{< /details>}}
-
-<!-- You should see something like this in the folder:
+<!-- 
+You should see something like this in the folder:
 ```
 >> tree .
 .
@@ -129,7 +121,7 @@ cd day2_lab1
 └── tams.mod
 
 3 directories, 14 files 
-```-->
+``` -->
 
 ### Know your GYRgons: GYRE namelist
 
@@ -207,8 +199,19 @@ You can find them for example at the bottom of [this page](https://gyre.readthed
 
 Here we tell GYRE what stellar model to use for computing oscillation frequencies.
 
-We will add the following lines here:
+##### Task: tell GYRE the type of model to use and lead the path
 
+Read the documentation on the [Model Namelist Group](https://gyre.readthedocs.io/en/stable/ref-guide/input-files/model-group.html), and fill the `<MODEL_TYPE>` and `<PARAM>`.
+
+```fortran
+&model
+    model_type = <MODEL_TYPE>
+    <PARAM> = './LOGS/profile1.data.FGONG'
+    file_format = 'FGONG'
+/
+```
+
+{{< details title="ℹ️ Solution " closed="true" >}}
 ```fortran
 &model
     model_type = 'EVOL'
@@ -216,13 +219,18 @@ We will add the following lines here:
     file_format = 'FGONG'
 /
 ```
+{{< /details >}}
 
 `model_type` tells GYRE what kind of stellar model is being used. Here, 'EVOL' indicates that we are using an evolutionary model (from MESA in our case). `file` pinpoints the location of the model file, and `file_format` specifies the format of the input file. In this case, it is FGONG.
 
 #### Mode
-This namegroup defines which modes you want to calculate. You can state the angular degree ($\ell$) and the azimuthal order ($m$). For each type of mode we will need one extra `&mode` namegroup. 
+This namelist group defines which oscillation modes you want to GYRE to search for. You can specify the angular degree ($\ell$) and the azimuthal order ($m$). 
 
-Add the instructions to calculate the `l=0` oscillation modes into your `gyre.in` file and give them the corresponding tag.
+> [!Tip]
+> For each type of mode we will need one extra `&mode` namelist group.
+
+##### Task: Complete the Mode Namelist Group
+We want the oscillation modes with $\ell=1$ and $m=0$, and limit the radial order between -50 and -10. Search in the documentation the relevant parameters and complete the `&mode` namelist group.
 
 {{< details title="ℹ️ Solution " closed="true" >}}
 
@@ -230,7 +238,7 @@ Add the instructions to calculate the `l=0` oscillation modes into your `gyre.in
 &mode
     l = 1
     m = 0
-    n_pg_min = -150
+    n_pg_min = -50
     n_pg_max = -10
 /
 ```
@@ -268,21 +276,26 @@ To reliably detect all modes, the scan grid spacing should generally be smaller 
 
 Here we are interested in g-modes, so we choose grid_type = 'INVERSE',
 
+##### Task: Configure the frequency scan
+Complete the `&scan` namelist group in `gyre.in` to:
+- use an inverse-frequency grid,
+- scan frequencies between 0.1 and 10 cycles per day,
+- use 5000 frequency points,
+- and express frequencies in cycles per day.
+
+Search the documentation for the relevant parameter names and fill in the values.
+
+{{< details title="ℹ️ Solution " closed="true" >}}
 ```fortran
 &scan
     grid_type = 'INVERSE'   ! Scan grid uniform in inverse frequency
-    freq_min = 0.2          ! Minimum frequency to scan from
-    freq_max = 2.5          ! Maximum frequency to scan to
+    freq_min = 0.1          ! Minimum frequency to scan from
+    freq_max = 10           ! Maximum frequency to scan to
     n_freq = 5000           ! Number of frequency points in scan
     freq_units = 'CYC_PER_DAY'
 /
 ```
-
-##### Task: Set frequency grid
-Add the lines above in the section `&scan` of your `gyre.in`.
-
-<!-- > [!Caution]
-> add a task to let them choose the range based on the mode? Need to add some extra columns in the history columns maybe. -->
+{{< /details >}}
 
 #### Output
 
@@ -292,7 +305,7 @@ GYRE provides two main types of output files:
 - summary files, which contain global properties, such as eigenfunctions and radial orders, of all computed modes,
 - detail files, which store the eigenfunctions and structural information for individual modes.
 
-For now, we will focus only on the summary output. Here you can include all quantities that describe the mode with a single value e.g. $l$, $m$, $n$, frequency, inertia, and more .  A full list of available output quantities can be found in the [summary files documentation](https://gyre.readthedocs.io/en/stable/ref-guide/output-files/summary-files.html). The name of the file is given by the `summary_file` and the quantities it should include are given with `summary_item_list`.
+For now, we will focus only on the summary output. Here you can include all quantities that describe the mode with a single value e.g. $\ell$, $m$, $n$, frequency, inertia, and more.  A full list of available output quantities can be found in the [summary files documentation](https://gyre.readthedocs.io/en/stable/ref-guide/output-files/summary-files.html). The name of the file is given by the `summary_file` and the quantities it should include are given with `summary_item_list`.
 
 To remain consistent with our frequency scan, do not forget to set: `freq_units = 'CYC_PER_DAY'`.
 
@@ -309,9 +322,6 @@ Put the following lines to define your output into the `&ad_output` of your `gyr
 
 > [!Tip]
 > The output settings are placed inside the `&ad_output` namelist group, indicating that we are performing an adiabatic oscillation calculation. If we want to instead calculate it non-adiabatically we would need to put it in `&nad_output` instead. 
-
-<!-- > [!Note]
-> Unlike MESA, GYRE does not generate any folders for you. B and you will get an error if it can't find the folder. -->
 
 ### Putting it all together
 
@@ -333,7 +343,7 @@ Before we procee to run GYRE, you might check that you have everything in place.
 &mode
     l = 1
     m = 0
-    n_pg_min = -150
+    n_pg_min = -50
     n_pg_max = -10
 /
 
@@ -343,8 +353,8 @@ Before we procee to run GYRE, you might check that you have everything in place.
 
 &scan
     grid_type = 'INVERSE'
-    freq_min = 0.2
-    freq_max = 2.5
+    freq_min = 0.1
+    freq_max = 10
     n_freq = 5000
     freq_units = 'CYC_PER_DAY'
     freq_min_units = 'CYC_PER_DAY'
@@ -355,9 +365,6 @@ Before we procee to run GYRE, you might check that you have everything in place.
 /
 
 &grid
-    w_osc = 10 ! Oscillatory region weight parameter
-    w_exp = 2  ! Exponential region weight parameter
-    w_ctr = 10 ! Central region weight parameter
 /
 
 &num
@@ -390,7 +397,7 @@ $GYRE_DIR/bin/gyre gyre.in
 
 The easiest way to visualize GYRE output is with the Python package `pygyre`, available on the Python Package Index ([PyPI](https://pypi.org/)).
 
-You can nstall it with:
+You can install it with:
 ```shell
 pip install pygyre
 ```
@@ -398,19 +405,17 @@ pip install pygyre
 We have prepared a [Google Colab](https://colab.research.google.com/drive/1i3vLNluWk44EUli_asEY4Pvnkbwme5kS?usp=sharing). Before editing the notebook, save a copy to your own Google Drive (`File → Save a copy in Drive`), otherwise your changes may not persist. If you have pygyre downloaded, you can download the notebook and work locally.
 
 ##### Task: plot the period spacing
-Upload your summary file to the Google Colab, and plot the period spacing.
+Upload your summary file to the Google Colab, and plot the period spacing. What do you expect to see?
 
-You will have a plot like this:
+If you encounter issues producing the summary file, you can download it [here](downloads/summary_zams.h5).
+
+{{<details title="period spacing" closed="true">}}
 ![period spacing](img/period_spacing.png)
 
-<!-- {{<details title="Why the period spacing is almost constant?" closed="true">}}
-$$
-\begin{align}
+The period spacings are almost constant! 
 
-\end{align}
-$$
-
-{{</details>}} -->
+In the asymptotic limit (high radial order), g-modes period spacings are nearly constant. Deviations from a constant period spacing provide valuable information about the stellar interior, such as chemical gradients, convective boundaries, or rotation.
+{{</details>}}
 
 #### Bonus: more diagnostic from the detail files
 > [!Note]
@@ -423,8 +428,8 @@ To tell GYRE to output the detail files, add the following lines in the `&ad_out
 &ad_output
     ....
 
-    detail_template = 'subfolder_name/detail.l%l.n%n.h5'               
-    detail_item_list = 'l,n_pg,omega,x,xi_r,xi_h,c_1,As,V_2,Delta_g,Gamma_1'
+    detail_template = 'subfolder/detail.l%l.n%n.h5'               
+    detail_item_list = 'l,n_pg,omega,x,xi_r,xi_h,c_1,As,V_2,Delta_g,Gamma_1,rho'
 /
 ```
 > [!Important]
@@ -436,13 +441,7 @@ To tell GYRE to output the detail files, add the following lines in the `&ad_out
 > mkdir detail_zams 
 > ```
 > {{</details>}}
-> Replace the `subfolder_name` by the proper name of your folder. 
-> {{<details title="example configuration" closed="true">}}
-> ```fortran
->     detail_template = 'detail_zams/detail.l%l.n%n.h5'               
->     detail_item_list = 'l,n_pg,omega,x,xi_r,xi_h,c_1,As,V_2,Delta_g,Gamma_1'
-> ```
-> {{</details>}}
+> Replace the `subfolder` by the proper name of your folder. 
 
 The `%l` and `%n` will be replaced by the harmonic degree $\ell$ and the radial order $n_\mathrm{pg}$, respectively. For more options, check out the [doc](https://gyre.readthedocs.io/en/stable/ref-guide/input-files/output-groups.html). The `detail_item_list` specifies the quantities we are interested in.
 
@@ -458,35 +457,50 @@ ls -l detail_zams | wc -l
 You will see the number of the modes found by GYRE.
 
 ##### Bonus task: inspect the propagation diagram
+
+The propagation diagram is basically a “map” showing where different types of waves can and cannot travel inside a star. The Brunt–Väisälä frequency ($N$) and the Lamb frequency ($S_\ell$) set the boundaries of the propagation regions: gravity waves propagate where $\omega^2 < N^2$ (g mode cavity), while pressure waves propagate where $\omega^2 > S_\ell^2$ (p mode cavity).
+
 Go to the [Google Colab](https://colab.research.google.com/drive/1i3vLNluWk44EUli_asEY4Pvnkbwme5kS?usp=sharing), upload one of your detail files there, and use the provided plotting function `plot_propagation_diagram` to plot the propagation diagram.
 
-Check if you have something like this:
+{{<details title="propagation diagram" closed="true">}}
 ![propagation diagram](img/propagation_diagram_zams.png)
+{{</details>}}
 
-##### Bonus task: inspect the eigenfunctions
-One can inspect the eigenfunctions of each mode through the detail files. Upload a few detail files to the Google Colab notebook and use the provided plotting functions to inspect the radial (`xi_r`) and horizontal (`xi_h`) eigenfunctions of different modes.
+By looking at the position of modes on the propagation diagram, one can determine whether a mode can propagate or is evanescent in different regions.
+{{<details title="how modes are placed on the propagation diagram" closed="true">}}
+![propagation diagram](img/propagation_freqs.png)
+
+Here one can see that the mode `n_pg = -1` is evanescant whereas modes with higher radial order can propagate.
+{{</details>}}
+
+##### Bonus task: inspect the displacement eigenfunctions
+One can inspect the eigenfunctions of each mode through the detail files. Upload a few detail files to the Google Colab notebook and use the provided plotting functions to inspect the radial (`xi_r`) and horizontal (`xi_h`) displacement eigenfunctions of different modes.
 
 Compare how the eigenfunctions change with radial order.
 
-<!-- >[!Caution]
-> is this a good idea?  -->
+{{<details title="eigenfunctions" closed="true">}}
+For `n_pg = -1`:
+![propagation diagram](img/eigenfunctions_n1.png)
+
+For `n_pg = -50`:
+![propagation diagram](img/eigenfunctions_n50.png)
+
+$\tilde{\xi}_r$ and $\tilde{\xi}_h$ are the radial and horizontal displacement perturbations, respectively. Inside the convective core, the radial and horizontal displacement amplitudes are of the same order because convection produces nearly isotropic, turbulent motions with no strong restoring buoyancy stratification. As a result, oscillatory motions are not strongly constrained into a preferred direction. Outside the convective core, in the stably stratified radiative region, radial motions are suppressed, so horizontal motions dominate. This is characteristic of g mode propagation.
+
+{{</details>}}
 
 #### Bonus: A short introduction to how GYRE finds oscillation modes
 
 GYRE solves the stellar oscillation equations, a set of differential equations and boundary conditions that describe small, periodic perturbations about a star's equilibrium state. Consistent solutions to these equations (known as "modes") can be found only for certain specific choices of the perturbation frequency, and so the frequency takes on the mathematical role of an eigenvalue.
 
 To calculate the frequency eigenvalues (or "eigenfrequencies") of a stellar model (obtained, for instance, from MESA), GYRE sets up a large system of algebraic equations. These equations are derived from finite-difference approximations to the oscillation differential equations, taken between pairs of adjacent spatial grid points. In symbolic form, the algebraic equations can be written as
-
 $$
-   S u = 0, 
+    S u = 0, 
 $$
-
 where $S$ is a matrix of coefficients and $u$ is a vector of unknowns representing the perturbations at each grid point. Solutions to this equation only exist when
-
 $$
     \det(S) = 0.
 $$
-
 and so GYRE's task is to search for the frequencies at which the determinant of $S$ vanishes. Once these eigenfrequencies are found, GYRE reconstructs the associated eigenfunctions (describing the spatial dependence of perturbations) from the vector $u$.
 
 The eigenfrequencies of a star depend on the detailed internal structure of the star. Therefore, by comparing a set of eigenfrequencies for a given stellar model against those observed in a real star, we can test how well the model represents the real star --- a technique known as asteroseismology.
