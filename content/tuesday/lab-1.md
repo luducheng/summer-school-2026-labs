@@ -478,7 +478,7 @@ By looking at the position of modes on the propagation diagram, one can determin
 {{<details title="how modes are placed on the propagation diagram" closed="true">}}
 ![propagation diagram](/tuesday/img/propagation_freqs.png)
 
-Here one can see that the mode `n_pg = -1` is evanescant whereas modes with higher radial order can propagate.
+In this case, all the modes lie in regions where propagation is allowed.
 {{</details>}}
 
 #### Bonus task: inspect the displacement eigenfunctions
@@ -488,10 +488,10 @@ Compare how the eigenfunctions change with radial order.
 
 {{<details title="eigenfunctions" closed="true">}}
 For `n_pg = -1`:
-![propagation diagram](/tuesday/img/eigenfunctions_n1.png)
+![propagation diagram](/tuesday/img/eigenfunctions_n-1.png)
 
 For `n_pg = -50`:
-![propagation diagram](/tuesday/img/eigenfunctions_n50.png)
+![propagation diagram](/tuesday/img/eigenfunctions_n-50.png)
 
 $\tilde{\xi}_{r}$ and $\tilde{\xi}_{h}$ are the radial and horizontal displacement perturbations, respectively. 
 
