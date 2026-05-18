@@ -98,30 +98,36 @@ unzip day2_lab1.zip
 cd day2_lab1
 ```
 {{< /details>}}
-<!-- 
+
+
 You should see something like this in the folder:
 ```
->> tree .
 .
-├── ck
+├── 5M_at_ZAMS.mod
+├── LOGS_zams
+│   ├── history.data
+│   ├── profile1.data
+│   ├── profile1.data.FGONG
+│   └── profiles.index
+├── README.rst
 ├── clean
 ├── history_columns.list
 ├── inlist
-├── inlist_1M_star
 ├── inlist_pgstar
+├── inlist_zams
 ├── make
 │   └── makefile
 ├── mk
-├── profile_columns.list
+├── photos
+│   └── x197
 ├── re
 ├── rn
-├── src
-│   ├── run_star_extras.f90
-│   └── run.f90
-└── tams.mod
+└── src
+    ├── run.f90
+    └── run_star_extras.f90
 
-3 directories, 14 files 
-``` -->
+5 directories, 18 files
+```
 
 ### Know your GYRgons: GYRE namelist
 
@@ -206,7 +212,7 @@ Read the documentation on the [Model Namelist Group](https://gyre.readthedocs.io
 ```fortran
 &model
     model_type = <MODEL_TYPE>
-    <PARAM> = './LOGS/profile1.data.FGONG'
+    <PARAM> = './LOGS_zams/profile1.data.FGONG'
     file_format = 'FGONG'
 /
 ```
@@ -215,7 +221,7 @@ Read the documentation on the [Model Namelist Group](https://gyre.readthedocs.io
 ```fortran
 &model
     model_type = 'EVOL'
-    file = './LOGS/profile1.data.FGONG'
+    file = './LOGS_zams/profile1.data.FGONG'
     file_format = 'FGONG'
 /
 ```
@@ -230,7 +236,7 @@ This namelist group defines which oscillation modes you want to GYRE to search f
 > For each type of mode we will need one extra `&mode` namelist group.
 
 ##### Task: Complete the Mode Namelist Group
-We want the oscillation modes with $\ell=1$ and $m=0$, and limit the radial order between -50 and -10. Search in the documentation the relevant parameters and complete the `&mode` namelist group.
+We want the oscillation modes with $\ell=1$ and $m=0$, and limit the radial order between -50 and -1. Search in the documentation the relevant parameters and complete the `&mode` namelist group.
 
 {{< details title="ℹ️ Solution " closed="true" >}}
 
@@ -239,7 +245,7 @@ We want the oscillation modes with $\ell=1$ and $m=0$, and limit the radial orde
     l = 1
     m = 0
     n_pg_min = -50
-    n_pg_max = -10
+    n_pg_max = -1
 /
 ```
 {{< /details >}}
@@ -336,7 +342,7 @@ Before we procee to run GYRE, you might check that you have everything in place.
 
 &model
     model_type = 'EVOL'
-    file = './LOGS/profile1.data.FGONG'
+    file = './LOGS_zams/profile1.data.FGONG'
     file_format = 'FGONG'
 /
 
@@ -344,7 +350,7 @@ Before we procee to run GYRE, you might check that you have everything in place.
     l = 1
     m = 0
     n_pg_min = -50
-    n_pg_max = -10
+    n_pg_max = -1
 /
 
 &osc
@@ -410,7 +416,7 @@ Upload your summary file to the Google Colab, and plot the period spacing. What 
 If you encounter issues producing the summary file, you can download it [here](downloads/summary_zams.h5).
 
 {{<details title="period spacing" closed="true">}}
-![period spacing](img/period_spacing.png)
+![period spacing](/tuesday/img/period_spacing.png)
 
 The period spacings are almost constant! 
 
@@ -443,7 +449,7 @@ To tell GYRE to output the detail files, add the following lines in the `&ad_out
 > {{</details>}}
 > Replace the `subfolder` by the proper name of your folder. 
 
-The `%l` and `%n` will be replaced by the harmonic degree $\ell$ and the radial order $n_\mathrm{pg}$, respectively. For more options, check out the [doc](https://gyre.readthedocs.io/en/stable/ref-guide/input-files/output-groups.html). The `detail_item_list` specifies the quantities we are interested in.
+The `%l` and `%n` will be replaced by the harmonic degree $\ell$ and the radial order $n_{\mathrm{pg}}$, respectively. For more options, check out the [doc](https://gyre.readthedocs.io/en/stable/ref-guide/input-files/output-groups.html). The `detail_item_list` specifies the quantities we are interested in.
 
 Again,
 ```shell
@@ -462,48 +468,59 @@ The propagation diagram is basically a “map” showing where different types o
 
 Go to the [Google Colab](https://colab.research.google.com/drive/1i3vLNluWk44EUli_asEY4Pvnkbwme5kS?usp=sharing), upload one of your detail files there, and use the provided plotting function `plot_propagation_diagram` to plot the propagation diagram.
 
+If you encounter issues producing the detail files, we have prepared the ones for [`n_pg=-1`](downloads/detail.l1.n-1.h5), [`n_pg=-25`](downloads/detail.l1.n-25.h5), and [`n_pg=-45`](downloads/detail.l1.n-45.h5), also discuss with others to see what they get.
+
 {{<details title="propagation diagram" closed="true">}}
-![propagation diagram](img/propagation_diagram_zams.png)
+![propagation diagram](/tuesday/img/propagation_diagram_zams.png)
 {{</details>}}
 
 By looking at the position of modes on the propagation diagram, one can determine whether a mode can propagate or is evanescent in different regions.
 {{<details title="how modes are placed on the propagation diagram" closed="true">}}
-![propagation diagram](img/propagation_freqs.png)
+![propagation diagram](/tuesday/img/propagation_freqs.png)
 
 Here one can see that the mode `n_pg = -1` is evanescant whereas modes with higher radial order can propagate.
 {{</details>}}
 
-##### Bonus task: inspect the displacement eigenfunctions
+#### Bonus task: inspect the displacement eigenfunctions
 One can inspect the eigenfunctions of each mode through the detail files. Upload a few detail files to the Google Colab notebook and use the provided plotting functions to inspect the radial (`xi_r`) and horizontal (`xi_h`) displacement eigenfunctions of different modes.
 
 Compare how the eigenfunctions change with radial order.
 
 {{<details title="eigenfunctions" closed="true">}}
 For `n_pg = -1`:
-![propagation diagram](img/eigenfunctions_n1.png)
+![propagation diagram](/tuesday/img/eigenfunctions_n1.png)
 
 For `n_pg = -50`:
-![propagation diagram](img/eigenfunctions_n50.png)
+![propagation diagram](/tuesday/img/eigenfunctions_n50.png)
 
-$\tilde{\xi}_r$ and $\tilde{\xi}_h$ are the radial and horizontal displacement perturbations, respectively. Inside the convective core, the radial and horizontal displacement amplitudes are of the same order because convection produces nearly isotropic, turbulent motions with no strong restoring buoyancy stratification. As a result, oscillatory motions are not strongly constrained into a preferred direction. Outside the convective core, in the stably stratified radiative region, radial motions are suppressed, so horizontal motions dominate. This is characteristic of g mode propagation.
+$\tilde{\xi}_{r}$ and $\tilde{\xi}_{h}$ are the radial and horizontal displacement perturbations, respectively. 
+
+Inside the convective core, the radial and horizontal displacement amplitudes are of the same order because convection produces nearly isotropic, turbulent motions with no strong restoring buoyancy stratification. As a result, oscillatory motions are not strongly constrained into a preferred direction. Outside the convective core, in the stably stratified radiative region, radial motions are suppressed, so horizontal motions dominate. This is characteristic of g mode propagation.
 
 {{</details>}}
 
-#### Bonus: A short introduction to how GYRE finds oscillation modes
+## Bonus: A short introduction to how GYRE finds oscillation modes
 
 GYRE solves the stellar oscillation equations, a set of differential equations and boundary conditions that describe small, periodic perturbations about a star's equilibrium state. Consistent solutions to these equations (known as "modes") can be found only for certain specific choices of the perturbation frequency, and so the frequency takes on the mathematical role of an eigenvalue.
 
 To calculate the frequency eigenvalues (or "eigenfrequencies") of a stellar model (obtained, for instance, from MESA), GYRE sets up a large system of algebraic equations. These equations are derived from finite-difference approximations to the oscillation differential equations, taken between pairs of adjacent spatial grid points. In symbolic form, the algebraic equations can be written as
+
 $$
-    S u = 0, 
+S u = 0, 
 $$
+
 where $S$ is a matrix of coefficients and $u$ is a vector of unknowns representing the perturbations at each grid point. Solutions to this equation only exist when
+
 $$
-    \det(S) = 0.
+\det(S) = 0,
 $$
+
 and so GYRE's task is to search for the frequencies at which the determinant of $S$ vanishes. Once these eigenfrequencies are found, GYRE reconstructs the associated eigenfunctions (describing the spatial dependence of perturbations) from the vector $u$.
 
 The eigenfrequencies of a star depend on the detailed internal structure of the star. Therefore, by comparing a set of eigenfrequencies for a given stellar model against those observed in a real star, we can test how well the model represents the real star --- a technique known as asteroseismology.
 
 Reference
 - [Townsend, R. H. D., & Teitler, S. A. 2013, *MNRAS*, 435, 3406](https://ui.adsabs.harvard.edu/abs/2013MNRAS.435.3406T/abstract)
+
+## Solution
+The complete solution is available [here](/tuesday/downloads/day2_lab1_complete.zip).
